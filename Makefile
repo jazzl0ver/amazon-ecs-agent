@@ -15,7 +15,8 @@ USERID=$(shell id -u)
 
 .PHONY: all gobuild static docker release certs test clean netkitten test-registry run-functional-tests benchmark-test gogenerate run-integ-tests pause-container get-cni-sources cni-plugins test-artifacts
 
-all: docker
+org="jazzl0ver/"
+all: firecampdocker
 
 # Dynamic go build; useful in that it does not have -a so it won't recompile
 # everything every time
@@ -56,6 +57,14 @@ docker: certs build-in-docker pause-container-release cni-plugins .out-stamp
 	@cd scripts && ./create-amazon-ecs-scratch
 	@docker build -f scripts/dockerfiles/Dockerfile.release -t "amazon/amazon-ecs-agent:make" .
 	@echo "Built Docker image \"amazon/amazon-ecs-agent:make\""
+
+# 'firecampdocker' builds the agent dockerfile from the current sourcecode tree, dirty
+# or not
+firecampdocker: certs build-in-docker pause-container-release cni-plugins
+	@cd scripts && ./create-amazon-ecs-scratch
+	@docker build -f scripts/dockerfiles/Dockerfile.release -t "${org}firecamp-amazon-ecs-agent:latest" .
+	@echo "Built Docker image \"${org}firecamp-amazon-ecs-agent:latest\""
+
 
 # 'docker-release' builds the agent from a clean snapshot of the git repo in
 # 'RELEASE' mode
