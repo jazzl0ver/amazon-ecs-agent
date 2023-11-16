@@ -32,7 +32,9 @@ endif
 
 export GO111MODULE=auto
 
-all: docker
+org="jazzl0ver/"
+version=1.79.0-firecamp
+all: firecampdocker
 
 # Dynamic go build; useful in that it does not have -a so it won't recompile
 # everything every time
@@ -91,6 +93,13 @@ ifeq (${TARGET_OS},windows)
 else
     BUILD=cleanbuild
 endif
+
+# 'firecampdocker' builds the agent dockerfile from the current sourcecode tree, dirty
+# or not
+firecampdocker: certs build-in-docker pause-container-release cni-plugins
+	@cd scripts && ./create-amazon-ecs-scratch
+	@docker build -f scripts/dockerfiles/Dockerfile.release -t "${org}firecamp-amazon-ecs-agent:${version}" .
+	@echo "Built Docker image \"${org}firecamp-amazon-ecs-agent:${version}\""
 
 # 'docker-release' builds the agent from a clean snapshot of the git repo in
 # 'RELEASE' mode
