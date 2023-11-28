@@ -7,6 +7,8 @@ The Amazon ECS Container Agent is a component of Amazon Elastic Container Servic
 
 This repository comes with ECS-Init, which is a [systemd](http://www.freedesktop.org/wiki/Software/systemd/) based service to support the Amazon ECS Container Agent and keep it running. It is used for systems that utilize `systemd` as init systems and is packaged as deb or rpm. The source for ECS-Init is available in this repository at `./ecs-init` while the packaging is available at `./packaging`.
 
+// Firecamp support added //
+
 ## Usage
 
 The best source of information on running this software is the
