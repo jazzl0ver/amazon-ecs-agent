@@ -58,6 +58,7 @@ import (
 	"github.com/aws/amazon-ecs-agent/ecs-agent/utils/ttime"
 	"github.com/aws/aws-sdk-go/aws"
 	ep "github.com/aws/aws-sdk-go/aws/endpoints"
+	"github.com/cihub/seelog"
 	"github.com/docker/docker/api/types"
 	dockercontainer "github.com/docker/docker/api/types/container"
 	"github.com/pkg/errors"
@@ -2022,6 +2023,15 @@ func (engine *DockerTaskEngine) createContainer(task *apitask.Task, container *a
 		name := reInvalidChars.ReplaceAllString(container.Name, "")
 
 		dockerContainerName = "ecs-" + task.Family + "-" + task.Version + "-" + name + "-" + utils.RandHex()
+
+		seelog.Infof("firecamp volume task.Family %s, task.Version %s, task %s", task.Family, task.Version, task)
+		seelog.Infof("firecamp volume creating container name %s, DockerConfig %s, VolumesFrom %s, MountPoints %s, Links %s, container %s", dockerContainerName, container.DockerConfig, container.VolumesFrom, container.MountPoints, container.Links, container)
+		seelog.Infof("firecamp volume hostConfig Binds %s, VolumesFrom %s, VolumeDriver %s, hostConfig %s", hostConfig.Binds, hostConfig.VolumesFrom, hostConfig.VolumeDriver, hostConfig)
+		hostConfig, vderr := AddVolumeDriver(hostConfig, container, engine.cfg.Cluster, task.Arn, task.Family)
+		if vderr != nil {
+			return dockerapi.DockerContainerMetadata{Error: apierrors.NamedError(vderr)}
+		}
+		seelog.Infof("firecamp volume updated hostConfig Binds %s, VolumeDriver %s, LogConfig %s, hostConfig %s", hostConfig.Binds, hostConfig.VolumeDriver, hostConfig.LogConfig, hostConfig)
 
 		// Pre-add the container in case we stop before the next, more useful,
 		// AddContainer call. This ensures we have a way to get the container if
